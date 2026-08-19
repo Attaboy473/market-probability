@@ -187,7 +187,8 @@ def fetch_yf():
     out = {}
     try:
         import yfinance as yf
-        for name, tk in {"USDIDR": "USDIDR=X", "IHSG": "^JKSE", "US10Y": "^TNX"}.items():
+        for name, tk in {"USDIDR": "USDIDR=X", "IHSG": "^JKSE",
+                         "US10Y": "^TNX", "DXY": "DX-Y.NYB"}.items():
             try:
                 h = yf.Ticker(tk).history(period="3mo")
                 if h is not None and len(h) > 5:
@@ -247,6 +248,27 @@ def grid_probs(mu, sigma):
     s = sum(raw)
     return {m: p/s for m, p in zip(MOVES, raw)}
 
+def quarter_key(date_str):
+    """'2026-08-19' -> 'Q3/26' (format label forecast TE)."""
+    try:
+        d = datetime.strptime(date_str, "%Y-%m-%d")
+        return f"Q{(d.month - 1)//3 + 1}/{str(d.year)[2:]}"
+    except Exception:
+        return None
+
+def pick_forecast(vals, labels, meeting_date):
+    """Ambil nilai forecast untuk kuartal rapat. values[i] <-> labels[i+1]."""
+    if not vals:
+        return None
+    qk = quarter_key(meeting_date)
+    if qk and labels:
+        for i, lab in enumerate(labels):
+            if lab.strip().lower() == qk.lower():
+                j = i - 1
+                if 0 <= j < len(vals):
+                    return vals[j]
+    return vals[1] if len(vals) > 1 else vals[0]
+
 def leg_consensus(te):
     """Kaki 1: konsensus ekonom dari kolom Kesepakatan TE + tilt forecast kuartalan."""
     notes = []
@@ -258,14 +280,15 @@ def leg_consensus(te):
     P = grid_probs(mu, CONFIG["sigma_consensus_bps"])
     notes.append(f"Konsensus ekonom: {cons:.2f}% vs BI rate {rate:.2f}% -> ekspektasi {mu:+.0f} bps")
 
-    rf = te.get("rate_forecast", {}).get("values")
-    if rf and len(rf) >= 2:
-        nxt_q = rf[2] if len(rf) > 2 and rf[2] > 0 else rf[1]
+    rf = te.get("rate_forecast", {})
+    meeting_date = (te.get("next_meeting") or {}).get("date")
+    nxt_q = pick_forecast(rf.get("values"), rf.get("labels"), meeting_date)
+    if nxt_q:
         tilt = (nxt_q - rate) * 100
         w = CONFIG["forecast_tilt_weight"]
         P2 = grid_probs(tilt, CONFIG["sigma_consensus_bps"] * 2)
         P = {m: (1-w)*P[m] + w*P2[m] for m in MOVES}
-        notes.append(f"Forecast kuartal depan (TE): {nxt_q:.2f}% -> tilt {tilt:+.0f} bps (bobot {w})")
+        notes.append(f"Forecast kuartal rapat (TE): {nxt_q:.2f}% -> tilt {tilt:+.0f} bps (bobot {w})")
     return P, notes
 
 def leg_market(phei, te):

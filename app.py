@@ -6,12 +6,14 @@ konsensus ekonom + pasar obligasi (PHEI) + data makro.
 
 Jalankan:  streamlit run app.py
 """
+import os, re, json
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-from datetime import datetime, time as dtime
+from datetime import datetime, time as dtime, timedelta
 
 import bi_rdg_calc as calc
+import events as evt
 
 st.set_page_config(page_title="BI Rate Radar", layout="wide",
                    initial_sidebar_state="collapsed")
@@ -93,6 +95,25 @@ def load_all():
 
 te, phei, yf, calendar, legs, final, bt = load_all()
 
+@st.cache_data(ttl=1800, show_spinner="Mengambil data event inflasi & The Fed...")
+def load_events():
+    fed = evt.fetch_fed()
+    fed_model = evt.model_fed(fed, yf)
+    inf_te = evt.fetch_inflation_te()
+    inf_model = evt.model_inflation(inf_te)
+    # backtest historis (dibaca dari file JSON hasil run events.py, biar cepat)
+    bt_hist = None
+    for fn in ["backtest_full_model.json", "backtest_macro_history.json"]:
+        p = os.path.join(os.path.dirname(os.path.abspath(evt.__file__)),
+                         "data", fn)
+        if os.path.exists(p):
+            with open(p, encoding="utf-8") as f:
+                bt_hist = json.load(f)
+            break
+    return fed, fed_model, inf_te, inf_model, bt_hist
+
+fed, fed_model, inf_te, inf_model, bt_hist = load_events()
+
 rate = te.get("bi_rate")
 nxt = te.get("next_meeting") or {}
 inf = te.get("inflation")
@@ -113,12 +134,73 @@ LEG_LABELS = {"consensus": "Konsensus ekonom", "market": "Pasar obligasi",
 BULAN = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "Mei", 6: "Jun",
          7: "Jul", 8: "Agu", 9: "Sep", 10: "Okt", 11: "Nov", 12: "Des"}
 
+_BULAN_EN = {m.lower(): i for i, m in enumerate(
+    ["January", "February", "March", "April", "May", "June", "July",
+     "August", "September", "October", "November", "December"], 1)}
+
 def fmt_date_id(iso):
+    # coba ISO dulu
     try:
         d = datetime.strptime(iso, "%Y-%m-%d")
         return f"{d.day} {BULAN[d.month]} {d.year}"
     except Exception:
-        return iso or "-"
+        pass
+    # coba format Inggris "August 19 2026"
+    try:
+        parts = iso.split()
+        if len(parts) == 3 and parts[0].lower() in _BULAN_EN:
+            mo = _BULAN_EN[parts[0].lower()]
+            return f"{int(parts[1])} {BULAN[mo]} {parts[2]}"
+    except Exception:
+        pass
+    return iso or "-"
+
+# Terjemahan nama event kalender TE -> Bahasa Indonesia
+TERJEMAH_EVENT = {
+    "Interest Rate Decision": "Keputusan Suku Bunga",
+    "Deposit Facility Rate": "Suku Bunga Fasilitas Simpanan",
+    "Lending Facility Rate": "Suku Bunga Fasilitas Pinjaman",
+    "Loan Growth YoY": "Pertumbuhan Kredit (YoY)",
+    "Current Account": "Neraca Transaksi Berjalan",
+    "M2 Money Supply YoY": "Uang Beredar M2 (YoY)",
+    "S&P Global Manufacturing PMI": "PMI Manufaktur S&P Global",
+    "Balance of Trade": "Neraca Perdagangan",
+    "Inflation Rate YoY": "Inflasi (YoY)",
+    "Core Inflation Rate YoY": "Inflasi Inti (YoY)",
+    "Inflation Rate MoM": "Inflasi (MoM)",
+    "Exports YoY": "Ekspor (YoY)",
+    "Imports YoY": "Impor (YoY)",
+    "Tourist Arrivals YoY": "Kedatangan Wisatawan (YoY)",
+    "Foreign Exchange Reserves": "Cadangan Devisa",
+    "Consumer Confidence": "Kepercayaan Konsumen",
+    "Retail Sales YoY": "Penjualan Ritel (YoY)",
+    "GDP Growth Rate YoY": "Pertumbuhan PDB (YoY)",
+    "GDP Growth Rate": "Pertumbuhan PDB",
+}
+
+_REF_BULAN = {"JAN": "Jan", "FEB": "Feb", "MAR": "Mar", "APR": "Apr",
+              "MAY": "Mei", "JUN": "Jun", "JUL": "Jul", "AUG": "Agu",
+              "SEP": "Sep", "OCT": "Okt", "NOV": "Nov", "DEC": "Des"}
+
+def terjemah_event(en):
+    """'Interest Rate Decision AUG' -> 'Keputusan Suku Bunga (ref: Agu)'"""
+    if not en:
+        return "?"
+    teks = en.strip()
+    # pisahkan referensi periode di akhir, misal "AUG", "Q2", "JUL"
+    m = re.match(r"^(.*?)[\s]+([A-Z]{3}|Q\d)(\s+\d{4})?$", teks)
+    base, ref = (m.group(1), m.group(2) + (m.group(3) or "")) if m else (teks, None)
+    base = base.strip()
+    terjemah = TERJEMAH_EVENT.get(base, base)
+    if terjemah == base:  # tidak ketemu di kamus -> coba terjemahan parsial
+        for k, v in TERJEMAH_EVENT.items():
+            if k in base:
+                terjemah = base.replace(k, v)
+                break
+    if ref:
+        ref = _REF_BULAN.get(ref.upper(), ref)
+        return f"{terjemah} (ref: {ref})"
+    return terjemah
 
 def rdg_countdown():
     try:
@@ -236,8 +318,8 @@ PLOTLY_LAYOUT = dict(template="plotly_dark",
                      font=dict(color="#c8cdd8", size=12),
                      margin=dict(l=40, r=20, t=30, b=40))
 
-tab_model, tab_bond, tab_macro, tab_cal = st.tabs(
-    ["Model", "Pasar Obligasi", "Makro", "Kalender & Backtest"])
+tab_model, tab_bond, tab_macro, tab_cal, tab_events = st.tabs(
+    ["Model", "Pasar Obligasi", "Makro", "Kalender & Backtest", "Event Lain"])
 
 # ---------- MODEL ----------
 with tab_model:
@@ -374,46 +456,262 @@ with tab_macro:
 with tab_cal:
     st.markdown('<div class="section-h">Kalender ekonomi Indonesia</div>',
                 unsafe_allow_html=True)
+    st.caption("Catatan: pada hari RDG (19 Agu), BI mengumumkan beberapa indikator "
+               "sekaligus — suku bunga acuan, fasilitas simpanan & pinjaman, dan "
+               "pertumbuhan kredit — sehingga tanggal yang sama muncul beberapa "
+               "baris. Semua waktu dalam WIB (GMT+7).")
     if calendar:
         rows = []
+        seen = set()
         for e in calendar:
-            cells = e["cells"]
-            ev = next((c for c in cells if c and not c.endswith(("AM", "PM"))
-                       and "%" not in c and not c.startswith("$") and c != "ID"), "?")
-            prev = next((c for c in cells if "%" in c or c.startswith("$")), "")
-            rows.append({"Tanggal": fmt_date_id(e["date"]), "Event": ev,
-                         "Sebelumnya": prev})
-        df_cal = pd.DataFrame(rows).drop_duplicates(subset=["Event"])
-        st.dataframe(df_cal, width="stretch", hide_index=True, height=320)
+            c = e["cells"]
+            ev_en = c[4] if len(c) > 4 else "?"
+            waktu_gmt = c[0] if c else ""
+            # GMT -> WIB
+            waktu_wib = waktu_gmt
+            try:
+                t = datetime.strptime(waktu_gmt, "%I:%M %p")
+                t = (t + timedelta(hours=7)).time()
+                waktu_wib = t.strftime("%H:%M")
+            except Exception:
+                pass
+            aktual = c[6] if len(c) > 6 else ""
+            kons = c[8] if len(c) > 8 else ""
+            key = (e["date"], ev_en)
+            if key in seen or not ev_en or ev_en == "?":
+                continue
+            seen.add(key)
+            rows.append({"date_raw": e["date"], "Waktu (WIB)": waktu_wib,
+                         "Event": terjemah_event(ev_en),
+                         "Aktual / Sebelumnya": aktual or "-",
+                         "Konsensus": kons or "-"})
+        df_cal = pd.DataFrame(rows)
+        # tanggal ditampilkan hanya pada baris pertama tiap grup hari
+        df_cal["Tanggal"] = df_cal["date_raw"].map(fmt_date_id)
+        df_cal.loc[df_cal["date_raw"].duplicated(), "Tanggal"] = ""
+        df_cal = df_cal[["Tanggal", "Waktu (WIB)", "Event",
+                         "Aktual / Sebelumnya", "Konsensus"]]
+        st.dataframe(df_cal, width="stretch", hide_index=True, height=360)
     else:
         st.info("Kalender belum berhasil dimuat.")
 
-    st.markdown('<div class="section-h">Backtest: prediksi vs hasil aktual</div>',
-                unsafe_allow_html=True)
-    if bt:
-        df_bt = pd.DataFrame(bt)
-        keep = [c for c in ["date", "move_actual", "consensus_move",
-                            "pred_leg_consensus"] if c in df_bt.columns]
-        df_bt = df_bt[keep].rename(columns={
-            "date": "RDG", "move_actual": "Aktual (bps)",
-            "consensus_move": "Konsensus (bps)",
-            "pred_leg_consensus": "Prediksi model (bps)"})
-        df_bt["RDG"] = df_bt["RDG"].map(fmt_date_id)
+    # ---------- BACKTEST UTAMA: 122 RDG (2016-2026) ----------
+    st.markdown('<div class="section-h">Backtest historis — 122 rapat BI '
+                '(Agu 2016 - Agu 2026)</div>', unsafe_allow_html=True)
+    bt_full_path = os.path.join(evt.HERE, "data", "backtest_full_model.json")
+    bt_full = {}
+    if os.path.exists(bt_full_path):
+        try:
+            with open(bt_full_path, encoding="utf-8") as f:
+                bt_full = json.load(f)
+        except Exception:
+            bt_full = {}
+    if bt_full:
+        sm = bt_full.get("summary", {})
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Rapat diuji", sm.get("n_meetings", "-"))
+        c2.metric("Akurasi model gabungan", f"{sm.get('model_hit_rate', 0):.0%}")
+        c3.metric("Baseline 'selalu hold'", f"{sm.get('naive_hold_hit_rate', 0):.0%}")
+        verdict_bt = ("Model belum mengalahkan baseline — kaki konsensus & pasar "
+                      "obligasi tidak punya arsip historis gratis sehingga diuji "
+                      "sebagai netral." if
+                      sm.get("model_hit_rate", 0) <= sm.get("naive_hold_hit_rate", 0)
+                      else "Model mengalahkan baseline hold.")
+        st.caption(verdict_bt + " Nilai sesungguhnya model ini ada pada prediksi "
+                   "RDG live (kaki konsensus & obligasi hanya tersedia untuk rapat "
+                   "mendatang).")
+        df_h = pd.DataFrame(bt_full.get("meetings", []))
+        if len(df_h):
+            df_h = df_h.rename(columns={
+                "date": "RDG", "move_actual": "Aktual (bps)",
+                "pred_move": "Prediksi (bps)", "mu_macro_bps": "Sinyal makro (bps)"})
+            df_h["RDG"] = df_h["RDG"].map(fmt_date_id)
+            df_h["Hasil"] = ["BENAR" if h else "SALAH"
+                             for h in df_h.get("exact_hit", [False]*len(df_h))]
+            df_h = df_h[["RDG", "Aktual (bps)", "Prediksi (bps)",
+                         "Sinyal makro (bps)", "Hasil"]]
+            st.dataframe(df_h, width="stretch", hide_index=True, height=340)
 
-        def hasil_row(r):
-            pred, act = r.get("Prediksi model (bps)"), r.get("Aktual (bps)")
-            if pd.isna(pred):
-                return "-"
-            return "BENAR" if pred == act else "SALAH"
-        df_bt["Hasil"] = df_bt.apply(hasil_row, axis=1)
-        st.dataframe(df_bt, width="stretch", hide_index=True)
-        hits = df_bt[df_bt["Hasil"].isin(["BENAR", "SALAH"])]
-        if len(hits):
-            n_hit = int((hits["Hasil"] == "BENAR").sum())
-            st.caption(f"Akurasi kaki konsensus: {n_hit}/{len(hits)} "
-                       f"({n_hit/len(hits):.0%})")
+    # ---------- BACKTEST KONSSENSUS (live, dari TE) ----------
+    with st.expander("Backtest kaki konsensus (hanya 3 RDG terakhir — "
+                     "keterbatasan data TE gratis)"):
+        if bt:
+            df_bt = pd.DataFrame(bt)
+            keep = [c for c in ["date", "move_actual", "consensus_move",
+                                "pred_leg_consensus"] if c in df_bt.columns]
+            df_bt = df_bt[keep].rename(columns={
+                "date": "RDG", "move_actual": "Aktual (bps)",
+                "consensus_move": "Konsensus (bps)",
+                "pred_leg_consensus": "Prediksi model (bps)"})
+            df_bt["RDG"] = df_bt["RDG"].map(fmt_date_id)
+
+            def hasil_row(r):
+                pred, act = r.get("Prediksi model (bps)"), r.get("Aktual (bps)")
+                if pd.isna(pred):
+                    return "-"
+                return "BENAR" if pred == act else "SALAH"
+            df_bt["Hasil"] = df_bt.apply(hasil_row, axis=1)
+            st.dataframe(df_bt, width="stretch", hide_index=True)
+            hits = df_bt[df_bt["Hasil"].isin(["BENAR", "SALAH"])]
+            if len(hits):
+                n_hit = int((hits["Hasil"] == "BENAR").sum())
+                st.caption(f"Akurasi kaki konsensus: {n_hit}/{len(hits)} "
+                           f"({n_hit/len(hits):.0%})")
+            st.caption("Hanya RDG dengan konsensus yang tercatat di halaman "
+                       "Trading Economics gratis yang bisa diuji.")
+        else:
+            st.info("Belum ada riwayat RDG dengan konsensus.")
+
+# ---------- EVENT LAIN: INFLASI & THE FED ----------
+with tab_events:
+    st.caption("Dua event makro lain yang dipantau model: rilis inflasi Indonesia "
+               "(bulanan) dan keputusan suku bunga The Fed (FOMC).")
+
+    ev1, ev2 = st.columns(2, gap="large")
+
+    # ===== INFLASI =====
+    with ev1:
+        st.markdown('<div class="section-h" style="margin-top:0">Inflasi Indonesia (YoY)</div>',
+                    unsafe_allow_html=True)
+        last_rel = inf_model.get("last_release") or {}
+        next_rel = inf_model.get("next_release") or {}
+        m1, m2 = st.columns(2)
+        m1.metric("Rilis terakhir", f"{last_rel.get('actual', float('nan')):.2f}%",
+                  delta=f"ref {last_rel.get('ref', '-')}", delta_color="off")
+        m2.metric("Perkiraan titik", f"{inf_model['point_forecast']:.2f}%",
+                  delta=f"rilis {fmt_date_id(next_rel.get('date'))}", delta_color="off")
+
+        pf = inf_model["P"]
+        st.markdown('<div class="dim">Probabilitas rilis berikutnya terhadap '
+                    'target band BI (1,5 - 3,5%)</div>', unsafe_allow_html=True)
+        segs_inf = ""
+        for k, colr, lab in [("below_band", "#22c55e", "di bawah band"),
+                             ("in_band", "#3b82f6", "dalam band"),
+                             ("above_band", "#ef4444", "di atas band")]:
+            w = pf[k]*100
+            segs_inf += (f'<div class="prob-seg" title="{lab}: {w:.1f}%" '
+                         f'style="width:{w:.2f}%;background:{colr}"></div>')
+        st.markdown(f'<div class="prob-track">{segs_inf}</div>',
+                    unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="track-legend">'
+            f'<div class="item"><span class="dot" style="background:#3b82f6"></span>'
+            f'dalam band <span class="pct">{pf["in_band"]*100:.1f}%</span></div>'
+            f'<div class="item"><span class="dot" style="background:#22c55e"></span>'
+            f'di bawah <span class="pct">{pf["below_band"]*100:.1f}%</span></div>'
+            f'<div class="item"><span class="dot" style="background:#ef4444"></span>'
+            f'di atas <span class="pct">{pf["above_band"]*100:.1f}%</span></div>'
+            f'</div>', unsafe_allow_html=True)
+
+        # history inflasi dari dataset
+        hist_data = evt.load_hist()
+        inf_hist = hist_data.get("inflation_id_history", [])
+        if inf_hist:
+            df_ih = pd.DataFrame(inf_hist[-18:])
+            df_ih["yoy"] = df_ih["yoy"].astype(float)
+            fig_ih = go.Figure()
+            fig_ih.add_trace(go.Bar(x=df_ih["month"], y=df_ih["yoy"],
+                marker_color=["#ef4444" if v > hi else
+                              ("#22c55e" if v < lo else "#3b82f6")
+                              for v in df_ih["yoy"]],
+                hovertemplate="%{x}: %{y:.2f}%<extra></extra>"))
+            fig_ih.add_hline(y=hi, line_dash="dot", line_color="#ef4444",
+                             annotation_text=f"batas atas {hi}%")
+            fig_ih.add_hline(y=lo, line_dash="dot", line_color="#22c55e",
+                             annotation_text=f"batas bawah {lo}%")
+            fig_ih.update_layout(height=280, yaxis_title="YoY (%)",
+                                 xaxis_title="",
+                                 margin=dict(l=40, r=20, t=20, b=30),
+                                 template="plotly_dark",
+                                 paper_bgcolor="rgba(0,0,0,0)",
+                                 plot_bgcolor="rgba(0,0,0,0)",
+                                 font=dict(color="#c8cdd8", size=11))
+            st.plotly_chart(fig_ih, width="stretch")
+        with st.expander("Cara hitung"):
+            for n in inf_model.get("notes", []):
+                st.markdown(f"- {n}")
+
+    # ===== THE FED =====
+    with ev2:
+        st.markdown('<div class="section-h" style="margin-top:0">Suku Bunga The Fed (FOMC)</div>',
+                    unsafe_allow_html=True)
+        nf = fed.get("next_fomc") or {}
+        m3, m4 = st.columns(2)
+        m3.metric("Fed Funds Rate", f"{fed.get('fed_rate', float('nan')):.2f}%",
+                  delta=f"terakhir {fmt_date_id(fed.get('fed_last_date'))}",
+                  delta_color="off")
+        m4.metric("FOMC berikutnya", fmt_date_id(nf.get("date")),
+                  delta=None)
+
+        pfed = fed_model["P"]
+        st.markdown('<div class="dim">Probabilitas keputusan FOMC berikutnya</div>',
+                    unsafe_allow_html=True)
+        segs_f = ""
+        for mv in [-25, 0, 25]:
+            meta = MOVES_META[mv]
+            w = pfed[mv]*100
+            segs_f += (f'<div class="prob-seg" title="{meta["short"]}: {w:.1f}%" '
+                       f'style="width:{w:.2f}%;background:{meta["color"]}"></div>')
+        st.markdown(f'<div class="prob-track">{segs_f}</div>',
+                    unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="track-legend">' + "".join(
+                f'<div class="item"><span class="dot" style="background:{MOVES_META[m]["color"]}"></span>'
+                f'{MOVES_META[m]["short"]} <span class="pct">{pfed[m]*100:.1f}%</span></div>'
+                for m in [-25, 0, 25]) + "</div>", unsafe_allow_html=True)
+
+        mode_f = fed_model["mode"]
+        fm = MOVES_META[mode_f]
+        st.markdown(f"""
+        <div class="verdict" style="border-left-color:{fm['color']}; padding:14px 18px;">
+          <div>
+            <div class="v-main" style="font-size:0.95rem">Prediksi FOMC: {fm['label']}
+            -> {fed.get('fed_rate', 0) + mode_f/100:.2f}%</div>
+            <div class="v-sub">Bobot: konsensus 60% + makro 40%</div>
+          </div>
+          <div class="v-prob">
+            <div class="p" style="font-size:1.5rem; color:{fm['color']}">{pfed[mode_f]*100:.1f}%</div>
+          </div>
+        </div>""", unsafe_allow_html=True)
+
+        with st.expander("Cara hitung"):
+            for leg_name in ["consensus", "macro"]:
+                for n in fed_model["legs"][leg_name][1]:
+                    st.markdown(f"- {n}")
+        with st.expander("Jadwal FOMC ke depan"):
+            for d in evt.load_hist().get("fomc_upcoming", []):
+                st.markdown(f"- {fmt_date_id(d['date'])}")
+
+    # ===== BACKTEST HISTORIS =====
+    st.markdown('<div class="section-h">Backtest historis: 122 rapat BI (2016-2026)</div>',
+                unsafe_allow_html=True)
+    if bt_hist:
+        s = bt_hist.get("summary", {})
+        st.caption(s.get("note", ""))
+        b1, b2, b3 = st.columns(3)
+        b1.metric("Jumlah rapat diuji", s.get("n_meetings", "-"))
+        model_hr = s.get("model_hit_rate")
+        naive_hr = s.get("naive_hold_hit_rate")
+        b2.metric("Hit rate model gabungan",
+                  f"{model_hr*100:.1f}%" if model_hr is not None else "-")
+        b3.metric("Baseline 'selalu hold'",
+                  f"{naive_hr*100:.1f}%" if naive_hr is not None else "-")
+        if model_hr is not None and naive_hr is not None:
+            if abs(model_hr - naive_hr) < 0.02:
+                st.warning("Hasil backtest jujur: tanpa arsip konsensus & harga "
+                           "obligasi historis, model gabungan TIDAK mengalahkan "
+                           "tebakan 'selalu hold'. Nilai prediksi sesungguhnya "
+                           "harus datang dari kaki konsensus + pasar obligasi yang "
+                           "hanya tersedia untuk RDG mendatang.")
+            elif model_hr > naive_hr:
+                st.success(f"Model mengalahkan baseline hold dengan selisih "
+                           f"{(model_hr-naive_hr)*100:.1f} poin persentase.")
+            else:
+                st.warning(f"Model masih di bawah baseline hold "
+                           f"({model_hr*100:.1f}% vs {naive_hr*100:.1f}%).")
     else:
-        st.info("Belum ada riwayat RDG dengan konsensus.")
+        st.info("File backtest historis belum ada. Jalankan `python events.py` "
+                "dulu untuk menghasilkannya.")
 
 # ============================== FOOTER ==============================
 st.markdown("---")

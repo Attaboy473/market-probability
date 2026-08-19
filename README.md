@@ -74,9 +74,11 @@ Prediksi live pertama: RDG 2026-08-19 → hold 41.6% / hike 31.8% / cut 26.6%
 
 ## Roadmap (fase berikutnya)
 - [x] Dashboard Streamlit (visual gauge probabilitas + grafik yield curve)
-- [ ] Backtest lebih panjang (butuh history konsensus → bisa via TE berbayar atau arsip berita)
-- [ ] Event lain: inflasi, The Fed, GDP
-- [ ] Scheduler cron + alert Telegram kalau probabilitas geser >10%
+- [x] Event lain: inflasi Indonesia & The Fed (tab "Event Lain")
+- [x] Backtest historis 122 RDG (2016-2026) - hasil jujur: 68% = baseline hold,
+      karena arsip konsensus & harga obligasi historis tidak tersedia gratis
+- [ ] Arsip konsensus historis (TE berbayar) untuk backtest yang benar-benar bermakna
+- [ ] Scheduler cron + alert kalau probabilitas geser >10%
 
 ## Keterbatasan
 - Indonesia tidak punya futures suku bunga BI → probabilitas pasar adalah PROKSI, bukan harga eksak
