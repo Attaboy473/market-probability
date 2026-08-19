@@ -3,3 +3,5 @@ beautifulsoup4>=4.12
 lxml>=4.9
 yfinance>=0.2
 pandas>=2.0
+streamlit>=1.40
+plotly>=5.20
