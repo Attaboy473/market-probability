@@ -1,0 +1,513 @@
+{
+  "generated_at": "2026-08-19T10:58:25",
+  "inputs": {
+    "bi_rate": 5.75,
+    "inflation": 2.88,
+    "inflation_meta": "Tingkat inflasi di Indonesia menurun menjadi 2,88 persen pada bulan Juli dari 3,34 persen pada bulan Juni 2026. Halaman ini menyediakan - Tingkat Inflasi Indonesia - nilai aktual, data historis, ramalan, grafik, statistik, kalender ekonomi, dan berita.",
+    "next_meeting": {
+      "date": "2026-08-19",
+      "actual": null,
+      "prev": 5.75,
+      "consensus": 5.75
+    },
+    "rate_forecast": {
+      "values": [
+        5.75,
+        5.75,
+        6.0,
+        6.0,
+        6.0
+      ],
+      "labels": [
+        "Uang",
+        "Actual",
+        "Q3/26",
+        "Q4/26",
+        "Q1/27",
+        "Q2/27"
+      ]
+    },
+    "yield_curve_front": {
+      "0.1": 6.5334,
+      "1.0": 6.669,
+      "2.0": 6.7796,
+      "3.0": 6.8664,
+      "4.0": 6.9374
+    },
+    "sbn_benchmark": [
+      {
+        "series": "FR0109",
+        "ttm": 4.58,
+        "yield_today": 6.9095,
+        "price_today": 95.9934,
+        "yield_yest": 6.9159,
+        "coupon": 5.875
+      },
+      {
+        "series": "FR0108",
+        "ttm": 9.67,
+        "yield_today": 7.0882,
+        "price_today": 95.9242,
+        "yield_yest": 7.0745,
+        "coupon": 6.5
+      },
+      {
+        "series": "FR0106",
+        "ttm": 14.0,
+        "yield_today": 7.2102,
+        "price_today": 99.2557,
+        "yield_yest": 7.1569,
+        "coupon": 7.125
+      },
+      {
+        "series": "FR0107",
+        "ttm": 19.01,
+        "yield_today": 7.2142,
+        "price_today": 99.0846,
+        "yield_yest": 7.1683,
+        "coupon": 7.125
+      },
+      {
+        "series": "PBS030",
+        "ttm": 1.91,
+        "yield_today": 6.781,
+        "price_today": 98.3967,
+        "yield_yest": 6.7621,
+        "coupon": 5.875
+      },
+      {
+        "series": "PBS040",
+        "ttm": 4.25,
+        "yield_today": 7.0021,
+        "price_today": 92.75,
+        "yield_yest": 6.9965,
+        "coupon": 5.0
+      },
+      {
+        "series": "PBS034",
+        "ttm": 12.83,
+        "yield_today": 7.1863,
+        "price_today": 94.2985,
+        "yield_yest": 7.1835,
+        "coupon": 6.5
+      },
+      {
+        "series": "PBS038",
+        "ttm": 23.34,
+        "yield_today": 7.1849,
+        "price_today": 96.5042,
+        "yield_yest": 7.2286,
+        "coupon": 6.875
+      }
+    ],
+    "indexes": {
+      "ICBI": {
+        "prev": 435.6046,
+        "last": 435.5897,
+        "chg": -0.0149
+      },
+      "INDOBeX_EffYield": {
+        "prev": 7.0817,
+        "last": 7.0833,
+        "chg": 0.0016
+      },
+      "INDOBeX_Gov_TR": {
+        "prev": 424.9063,
+        "last": 424.8773,
+        "chg": -0.029
+      }
+    },
+    "index_date": "Selasa , 18 Agustus 2026",
+    "yfinance": {
+      "USDIDR": {
+        "last": 17835.0,
+        "chg_1w_pct": 0.07,
+        "chg_1m_pct": -0.55,
+        "chg_3m_pct": 0.76
+      },
+      "IHSG": {
+        "last": 6417.1318,
+        "chg_1w_pct": 2.38,
+        "chg_1m_pct": 3.91,
+        "chg_3m_pct": 0.73
+      },
+      "US10Y": {
+        "last": 4.706,
+        "chg_1w_pct": 0.47,
+        "chg_1m_pct": 3.63,
+        "chg_3m_pct": 1.8
+      }
+    },
+    "calendar_economic": [
+      {
+        "date": "August 19 2026",
+        "cells": [
+          "07:30 AM",
+          "ID",
+          "",
+          "ID",
+          "Interest Rate Decision AUG",
+          "",
+          "5.75%",
+          "5.75%",
+          "5.75%",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "August 19 2026",
+        "cells": [
+          "07:30 AM",
+          "ID",
+          "",
+          "ID",
+          "Deposit Facility Rate AUG",
+          "",
+          "4.75%",
+          "4.75%",
+          "4.75%",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "August 19 2026",
+        "cells": [
+          "07:30 AM",
+          "ID",
+          "",
+          "ID",
+          "Lending Facility Rate AUG",
+          "",
+          "6.5%",
+          "6.5%",
+          "6.5%",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "August 19 2026",
+        "cells": [
+          "07:30 AM",
+          "ID",
+          "",
+          "ID",
+          "Loan Growth YoY JUL",
+          "",
+          "12.67%",
+          "",
+          "13.0%",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "August 21 2026",
+        "cells": [
+          "03:00 AM",
+          "ID",
+          "",
+          "ID",
+          "Current Account Q2",
+          "",
+          "$-4.0B",
+          "",
+          "$-1.8B",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "August 21 2026",
+        "cells": [
+          "03:00 AM",
+          "ID",
+          "",
+          "ID",
+          "M2 Money Supply YoY JUL",
+          "",
+          "8.7%",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "September 01 2026",
+        "cells": [
+          "12:30 AM",
+          "ID",
+          "",
+          "ID",
+          "S&P Global Manufacturing PMI AUG",
+          "",
+          "50.2",
+          "",
+          "50.5",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "September 01 2026",
+        "cells": [
+          "04:00 AM",
+          "ID",
+          "",
+          "ID",
+          "Balance of Trade JUL",
+          "",
+          "$-0.45B",
+          "",
+          "$-0.3B",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "September 01 2026",
+        "cells": [
+          "04:00 AM",
+          "ID",
+          "",
+          "ID",
+          "Inflation Rate YoY AUG",
+          "",
+          "2.88%",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "September 01 2026",
+        "cells": [
+          "04:00 AM",
+          "ID",
+          "",
+          "ID",
+          "Core Inflation Rate YoY AUG",
+          "",
+          "2.76%",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "September 01 2026",
+        "cells": [
+          "04:00 AM",
+          "ID",
+          "",
+          "ID",
+          "Exports YoY JUL",
+          "",
+          "8.84%",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "September 01 2026",
+        "cells": [
+          "04:00 AM",
+          "ID",
+          "",
+          "ID",
+          "Imports YoY JUL",
+          "",
+          "34.27%",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "September 01 2026",
+        "cells": [
+          "04:00 AM",
+          "ID",
+          "",
+          "ID",
+          "Inflation Rate MoM AUG",
+          "",
+          "-0.14%",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "September 01 2026",
+        "cells": [
+          "05:00 AM",
+          "ID",
+          "",
+          "ID",
+          "Tourist Arrivals YoY JUL",
+          "",
+          "2.15%",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "September 07 2026",
+        "cells": [
+          "03:00 AM",
+          "ID",
+          "",
+          "ID",
+          "Foreign Exchange Reserves AUG",
+          "",
+          "$145.3B",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "September 09 2026",
+        "cells": [
+          "03:00 AM",
+          "ID",
+          "",
+          "ID",
+          "Consumer Confidence AUG",
+          "",
+          "116.8",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "September 10 2026",
+        "cells": [
+          "03:00 AM",
+          "ID",
+          "",
+          "ID",
+          "Retail Sales YoY JUL",
+          "",
+          "-3%",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      }
+    ]
+  },
+  "legs": {
+    "consensus": {
+      "P": {
+        "-25": 0.2294,
+        "0": 0.4817,
+        "25": 0.2889
+      },
+      "notes": [
+        "Konsensus ekonom: 5.75% vs BI rate 5.75% -> ekspektasi +0 bps",
+        "Forecast kuartal depan (TE): 6.00% -> tilt +25 bps (bobot 0.25)"
+      ]
+    },
+    "market": {
+      "P": {
+        "-25": 0.3144,
+        "0": 0.3685,
+        "25": 0.3172
+      },
+      "notes": [
+        "Yield 0.1Y 6.53% | spread 78 bps vs baseline 75 bps -> bias +2 bps (diredam 0.5)",
+        "Momentum yield pendek -2.6 bps (kemarin -> hari ini)",
+        "INDOBeX effective yield 7.0833 (chg +0.0016)"
+      ]
+    },
+    "macro": {
+      "P": {
+        "-25": 0.2484,
+        "0": 0.3461,
+        "25": 0.4055
+      },
+      "notes": [
+        "Inflasi 2.88% -> posisi 69% di target band [1.5-3.5] (mu +9 bps)",
+        "USDIDR 3bln +0.76% (rupiah melemah)",
+        "US10Y 3bln +1.80%"
+      ]
+    }
+  },
+  "weights": {
+    "consensus": 0.45,
+    "market": 0.4,
+    "macro": 0.15
+  },
+  "final_probability": {
+    "-25": 0.2663,
+    "0": 0.4161,
+    "25": 0.3177
+  },
+  "most_likely_move_bps": 0,
+  "backtest_consensus_leg": [
+    {
+      "date": "2026-06-09",
+      "move_actual": 25,
+      "consensus_move": null,
+      "note": "no consensus listed"
+    },
+    {
+      "date": "2026-06-18",
+      "move_actual": 25,
+      "consensus_move": 25,
+      "pred_leg_consensus": 25,
+      "hit": true,
+      "P_consensus_leg": {
+        "-25": 0.029,
+        "0": 0.305,
+        "25": 0.666
+      }
+    },
+    {
+      "date": "2026-07-22",
+      "move_actual": 0,
+      "consensus_move": 25,
+      "pred_leg_consensus": 25,
+      "hit": true,
+      "P_consensus_leg": {
+        "-25": 0.029,
+        "0": 0.305,
+        "25": 0.666
+      }
+    }
+  ]
+}
