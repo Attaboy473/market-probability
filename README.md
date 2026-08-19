@@ -46,10 +46,19 @@ move ∈ {-25 bps (cut), 0 (hold), +25 bps (hike)}
 
 Semua bobot & parameter di dict `CONFIG` atas file — gampang di-tuning.
 
-### Validasi
-Fungsi `backtest()` menguji kaki konsensus terhadap RDG historis yang ada di TE:
+### Validasi (backtest)
+`python backtest.py log`    → catat prediksi RDG terdekat SEBELUM hasil keluar
+`python backtest.py update` → ambil hasil aktual dari TE, evaluasi prediksi vs kenyataan
+
+Prinsip: prediksi harus dicatat sebelum hasil keluar (anti hindsight bias).
+Log: `data/predictions_log.json`, hasil: `data/backtest_results.json`.
+
+RDG historis TE yang punya konsensus (hanya kaki konsensus):
 - 2026-06-18: prediksi +25, aktual +25 ✅
 - 2026-07-22: prediksi +25, aktual HOLD ❌ (BI surprise, konsensus keliru)
+
+Prediksi live pertama: RDG 2026-08-19 → hold 41.6% / hike 31.8% / cut 26.6%
+(status: menunggu hasil aktual, dievaluasi otomatis via cron)
 
 ## Roadmap (fase berikutnya)
 - [ ] Dashboard Streamlit (visual gauge probabilitas + grafik yield curve)

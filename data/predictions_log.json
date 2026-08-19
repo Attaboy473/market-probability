@@ -1,0 +1,38 @@
+[
+  {
+    "meeting_date": "2026-08-19",
+    "predicted_at": "2026-08-19T11:07:04",
+    "bi_rate_before": 5.75,
+    "consensus": 5.75,
+    "inflation": 2.88,
+    "final_probability": {
+      "-25": 0.2664,
+      "0": 0.4161,
+      "25": 0.3175
+    },
+    "most_likely_move_bps": 0,
+    "legs": {
+      "consensus": {
+        "-25": 0.2294,
+        "0": 0.4817,
+        "25": 0.2889
+      },
+      "market": {
+        "-25": 0.3144,
+        "0": 0.3685,
+        "25": 0.3172
+      },
+      "macro": {
+        "-25": 0.2493,
+        "0": 0.3463,
+        "25": 0.4044
+      }
+    },
+    "weights": {
+      "consensus": 0.45,
+      "market": 0.4,
+      "macro": 0.15
+    },
+    "status": "pending"
+  }
+]
