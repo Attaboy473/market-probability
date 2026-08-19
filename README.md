@@ -12,9 +12,21 @@ CUT  -25bp : 26.6%
 
 ## Cara pakai
 ```bash
-python bi_rdg_calc.py
-# hasil lengkap -> data/rdg_result.json
+pip install -r requirements.txt
+
+# Kalkulator CLI
+python bi_rdg_calc.py          # hasil lengkap -> data/rdg_result.json
+
+# Dashboard web (Streamlit + Plotly)
+streamlit run app.py           # buka http://localhost:8501
 ```
+
+### Dashboard (Fase 2)
+- 📊 Gauge + bar chart probabilitas CUT / HOLD / HIKE
+- 🧠 Breakdown 3 kaki model dengan catatan per sinyal
+- 📈 Yield curve SUN hari ini vs kemarin + SBN benchmark + indeks INDOBeX/ICBI
+- 🌍 Indikator makro (USDIDR, IHSG, US10Y) + posisi inflasi di target band
+- 📅 Kalender ekonomi & tabel backtest dengan akurasi
 
 ## Arsitektur
 
@@ -61,7 +73,7 @@ Prediksi live pertama: RDG 2026-08-19 → hold 41.6% / hike 31.8% / cut 26.6%
 (status: menunggu hasil aktual, dievaluasi otomatis via cron)
 
 ## Roadmap (fase berikutnya)
-- [ ] Dashboard Streamlit (visual gauge probabilitas + grafik yield curve)
+- [x] Dashboard Streamlit (visual gauge probabilitas + grafik yield curve)
 - [ ] Backtest lebih panjang (butuh history konsensus → bisa via TE berbayar atau arsip berita)
 - [ ] Event lain: inflasi, The Fed, GDP
 - [ ] Scheduler cron + alert Telegram kalau probabilitas geser >10%
