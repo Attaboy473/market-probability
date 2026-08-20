@@ -5,9 +5,15 @@ bukan dari taruhan, tapi dari 3 kaki data profesional.
 
 ## Hasil (RDG 19 Agustus 2026)
 ```
-HOLD 5.75% : 41.6%  ← paling mungkin
-HIKE +25bp : 31.8%
-CUT  -25bp : 26.6%
+Prediksi : HOLD 5.75% : 41.6%  ← paling mungkin
+Aktual   : HOLD 5.75%          ← TERBUKTI BENAR (HIT)
+```
+
+## RDG berikutnya (23 September 2026)
+```
+HOLD 5.75% : 35.0%  ← paling mungkin (konsensus belum keluar)
+HIKE +25bp : 32.9%
+CUT  -25bp : 32.1%
 ```
 
 ## Cara pakai
@@ -65,12 +71,15 @@ Semua bobot & parameter di dict `CONFIG` atas file — gampang di-tuning.
 Prinsip: prediksi harus dicatat sebelum hasil keluar (anti hindsight bias).
 Log: `data/predictions_log.json`, hasil: `data/backtest_results.json`.
 
+Backtest live (prediksi penuh 3 kaki, dicatat sebelum hasil keluar):
+- 2026-08-19: prediksi HOLD (41.6%), aktual HOLD ✅ **HIT**
+
 RDG historis TE yang punya konsensus (hanya kaki konsensus):
 - 2026-06-18: prediksi +25, aktual +25 ✅
 - 2026-07-22: prediksi +25, aktual HOLD ❌ (BI surprise, konsensus keliru)
+- 2026-08-19: prediksi HOLD, aktual HOLD ✅
 
-Prediksi live pertama: RDG 2026-08-19 → hold 41.6% / hike 31.8% / cut 26.6%
-(status: menunggu hasil aktual, dievaluasi otomatis via cron)
+Skor sementara: **3 HIT / 1 MISS** (75%) — sampel kecil, tapi live tracking dimulai.
 
 ## Roadmap (fase berikutnya)
 - [x] Dashboard Streamlit (visual gauge probabilitas + grafik yield curve)

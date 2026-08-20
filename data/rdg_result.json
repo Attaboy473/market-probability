@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-08-19T10:58:25",
+  "generated_at": "2026-08-20T09:24:23",
   "inputs": {
     "bi_rate": 5.75,
     "inflation": 2.88,
     "inflation_meta": "Tingkat inflasi di Indonesia menurun menjadi 2,88 persen pada bulan Juli dari 3,34 persen pada bulan Juni 2026. Halaman ini menyediakan - Tingkat Inflasi Indonesia - nilai aktual, data historis, ramalan, grafik, statistik, kalender ekonomi, dan berita.",
     "next_meeting": {
-      "date": "2026-08-19",
+      "date": "2026-09-23",
       "actual": null,
       "prev": 5.75,
-      "consensus": 5.75
+      "consensus": null
     },
     "rate_forecast": {
       "values": [
@@ -28,180 +28,186 @@
       ]
     },
     "yield_curve_front": {
-      "0.1": 6.5334,
-      "1.0": 6.669,
-      "2.0": 6.7796,
-      "3.0": 6.8664,
-      "4.0": 6.9374
+      "0.1": 6.5155,
+      "1.0": 6.656,
+      "2.0": 6.7594,
+      "3.0": 6.8363,
+      "4.0": 6.8993
     },
     "sbn_benchmark": [
       {
         "series": "FR0109",
-        "ttm": 4.58,
-        "yield_today": 6.9095,
-        "price_today": 95.9934,
-        "yield_yest": 6.9159,
+        "ttm": 4.57,
+        "yield_today": 6.866,
+        "price_today": 96.1598,
+        "yield_yest": 6.9095,
         "coupon": 5.875
       },
       {
         "series": "FR0108",
-        "ttm": 9.67,
-        "yield_today": 7.0882,
-        "price_today": 95.9242,
-        "yield_yest": 7.0745,
+        "ttm": 9.66,
+        "yield_today": 7.0576,
+        "price_today": 96.131,
+        "yield_yest": 7.0882,
         "coupon": 6.5
       },
       {
         "series": "FR0106",
         "ttm": 14.0,
-        "yield_today": 7.2102,
-        "price_today": 99.2557,
-        "yield_yest": 7.1569,
+        "yield_today": 7.1969,
+        "price_today": 99.3712,
+        "yield_yest": 7.2102,
         "coupon": 7.125
       },
       {
         "series": "FR0107",
-        "ttm": 19.01,
-        "yield_today": 7.2142,
-        "price_today": 99.0846,
-        "yield_yest": 7.1683,
+        "ttm": 19.0,
+        "yield_today": 7.2053,
+        "price_today": 99.175,
+        "yield_yest": 7.2142,
         "coupon": 7.125
       },
       {
         "series": "PBS030",
         "ttm": 1.91,
-        "yield_today": 6.781,
-        "price_today": 98.3967,
-        "yield_yest": 6.7621,
+        "yield_today": 6.7601,
+        "price_today": 98.4351,
+        "yield_yest": 6.781,
         "coupon": 5.875
       },
       {
         "series": "PBS040",
-        "ttm": 4.25,
-        "yield_today": 7.0021,
-        "price_today": 92.75,
-        "yield_yest": 6.9965,
+        "ttm": 4.24,
+        "yield_today": 6.9239,
+        "price_today": 93.0247,
+        "yield_yest": 7.0021,
         "coupon": 5.0
       },
       {
         "series": "PBS034",
         "ttm": 12.83,
-        "yield_today": 7.1863,
-        "price_today": 94.2985,
-        "yield_yest": 7.1835,
+        "yield_today": 7.1735,
+        "price_today": 94.401,
+        "yield_yest": 7.1863,
         "coupon": 6.5
       },
       {
         "series": "PBS038",
         "ttm": 23.34,
-        "yield_today": 7.1849,
-        "price_today": 96.5042,
-        "yield_yest": 7.2286,
+        "yield_today": 7.1807,
+        "price_today": 96.55,
+        "yield_yest": 7.1849,
         "coupon": 6.875
       }
     ],
     "indexes": {
       "ICBI": {
-        "prev": 435.6046,
-        "last": 435.5897,
-        "chg": -0.0149
+        "prev": 435.5897,
+        "last": 436.2697,
+        "chg": 0.68
       },
       "INDOBeX_EffYield": {
-        "prev": 7.0817,
-        "last": 7.0833,
-        "chg": 0.0016
+        "prev": 7.0833,
+        "last": 7.0571,
+        "chg": -0.0263
       },
       "INDOBeX_Gov_TR": {
-        "prev": 424.9063,
-        "last": 424.8773,
-        "chg": -0.029
+        "prev": 424.8773,
+        "last": 425.5526,
+        "chg": 0.6753
       }
     },
-    "index_date": "Selasa , 18 Agustus 2026",
+    "index_date": "Rabu , 19 Agustus 2026",
     "yfinance": {
       "USDIDR": {
-        "last": 17835.0,
-        "chg_1w_pct": 0.07,
-        "chg_1m_pct": -0.55,
-        "chg_3m_pct": 0.76
+        "last": 17839.0,
+        "chg_1w_pct": -0.08,
+        "chg_1m_pct": -0.51,
+        "chg_3m_pct": 0.35
       },
       "IHSG": {
-        "last": 6417.1318,
-        "chg_1w_pct": 2.38,
-        "chg_1m_pct": 3.91,
-        "chg_3m_pct": 0.73
+        "last": 6474.0801,
+        "chg_1w_pct": 1.57,
+        "chg_1m_pct": 3.89,
+        "chg_3m_pct": 2.46
       },
       "US10Y": {
-        "last": 4.706,
-        "chg_1w_pct": 0.47,
-        "chg_1m_pct": 3.63,
-        "chg_3m_pct": 1.8
+        "last": 4.653,
+        "chg_1w_pct": -0.62,
+        "chg_1m_pct": 1.2,
+        "chg_3m_pct": -0.3
+      },
+      "DXY": {
+        "last": 98.826,
+        "chg_1w_pct": -1.18,
+        "chg_1m_pct": -2.14,
+        "chg_3m_pct": -0.48
       }
     },
     "calendar_economic": [
       {
         "date": "August 19 2026",
         "cells": [
-          "07:30 AM",
-          "ID",
-          "",
-          "ID",
-          "Interest Rate Decision AUG",
-          "",
-          "5.75%",
-          "5.75%",
-          "5.75%",
-          "",
-          "",
-          ""
-        ]
-      },
-      {
-        "date": "August 19 2026",
-        "cells": [
-          "07:30 AM",
-          "ID",
-          "",
-          "ID",
-          "Deposit Facility Rate AUG",
-          "",
-          "4.75%",
-          "4.75%",
-          "4.75%",
-          "",
-          "",
-          ""
-        ]
-      },
-      {
-        "date": "August 19 2026",
-        "cells": [
-          "07:30 AM",
-          "ID",
-          "",
-          "ID",
-          "Lending Facility Rate AUG",
-          "",
-          "6.5%",
-          "6.5%",
-          "6.5%",
-          "",
-          "",
-          ""
-        ]
-      },
-      {
-        "date": "August 19 2026",
-        "cells": [
-          "07:30 AM",
+          "07:15 AM",
           "ID",
           "",
           "ID",
           "Loan Growth YoY JUL",
-          "",
+          "13.58%",
           "12.67%",
           "",
           "13.0%",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "August 19 2026",
+        "cells": [
+          "07:20 AM",
+          "ID",
+          "",
+          "ID",
+          "Interest Rate Decision AUG",
+          "5.75%",
+          "5.75%",
+          "5.75%",
+          "5.75%",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "August 19 2026",
+        "cells": [
+          "07:20 AM",
+          "ID",
+          "",
+          "ID",
+          "Deposit Facility Rate AUG",
+          "4.75%",
+          "4.75%",
+          "4.75%",
+          "4.75%",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "date": "August 19 2026",
+        "cells": [
+          "07:20 AM",
+          "ID",
+          "",
+          "ID",
+          "Lending Facility Rate AUG",
+          "6.5%",
+          "6.5%",
+          "6.5%",
+          "6.5%",
           "",
           "",
           ""
@@ -433,37 +439,36 @@
   "legs": {
     "consensus": {
       "P": {
-        "-25": 0.2294,
-        "0": 0.4817,
-        "25": 0.2889
+        "-25": 0.3333,
+        "0": 0.3333,
+        "25": 0.3333
       },
       "notes": [
-        "Konsensus ekonom: 5.75% vs BI rate 5.75% -> ekspektasi +0 bps",
-        "Forecast kuartal depan (TE): 6.00% -> tilt +25 bps (bobot 0.25)"
+        "Konsensus tidak tersedia -> uniform"
       ]
     },
     "market": {
       "P": {
-        "-25": 0.3144,
+        "-25": 0.3162,
         "0": 0.3685,
-        "25": 0.3172
+        "25": 0.3153
       },
       "notes": [
-        "Yield 0.1Y 6.53% | spread 78 bps vs baseline 75 bps -> bias +2 bps (diredam 0.5)",
-        "Momentum yield pendek -2.6 bps (kemarin -> hari ini)",
-        "INDOBeX effective yield 7.0833 (chg +0.0016)"
+        "Yield 0.1Y 6.52% | spread 77 bps vs baseline 75 bps -> bias +1 bps (diredam 0.5)",
+        "Momentum yield pendek -1.8 bps (kemarin -> hari ini)",
+        "INDOBeX effective yield 7.0571 (chg -0.0263)"
       ]
     },
     "macro": {
       "P": {
-        "-25": 0.2484,
-        "0": 0.3461,
-        "25": 0.4055
+        "-25": 0.2963,
+        "0": 0.3521,
+        "25": 0.3517
       },
       "notes": [
         "Inflasi 2.88% -> posisi 69% di target band [1.5-3.5] (mu +9 bps)",
-        "USDIDR 3bln +0.76% (rupiah melemah)",
-        "US10Y 3bln +1.80%"
+        "USDIDR 3bln +0.35% (rupiah melemah)",
+        "US10Y 3bln -0.30%"
       ]
     }
   },
@@ -473,18 +478,12 @@
     "macro": 0.15
   },
   "final_probability": {
-    "-25": 0.2663,
-    "0": 0.4161,
-    "25": 0.3177
+    "-25": 0.3209,
+    "0": 0.3502,
+    "25": 0.3289
   },
   "most_likely_move_bps": 0,
   "backtest_consensus_leg": [
-    {
-      "date": "2026-06-09",
-      "move_actual": 25,
-      "consensus_move": null,
-      "note": "no consensus listed"
-    },
     {
       "date": "2026-06-18",
       "move_actual": 25,
@@ -507,6 +506,18 @@
         "-25": 0.029,
         "0": 0.305,
         "25": 0.666
+      }
+    },
+    {
+      "date": "2026-08-19",
+      "move_actual": 0,
+      "consensus_move": 0,
+      "pred_leg_consensus": 0,
+      "hit": true,
+      "P_consensus_leg": {
+        "-25": 0.239,
+        "0": 0.522,
+        "25": 0.239
       }
     }
   ]
