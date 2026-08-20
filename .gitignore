@@ -4,3 +4,7 @@ __pycache__/
 .venv/
 venv/
 data/run_log.txt
+# file scratch eksperimen (jangan ke-commit)
+_validate*.py
+_impact_test.py
+nul

@@ -49,9 +49,15 @@ Catatan:
 
 ### Model probabilitas
 ```
-P_final(move) = 45% × P_konsensus + 40% × P_pasar + 15% × P_makro
+P_final(move) = w_cons × P_konsensus + w_mkt × P_pasar + w_macro × P_makro
 move ∈ {-25 bps (cut), 0 (hold), +25 bps (hike)}
+bobot nominal: 45% / 40% / 15%
 ```
+
+**Renormalisasi bobot:** kalau suatu kaki tidak tersedia datanya (misal konsensus
+TE belum terbit untuk RDG berikutnya), kaki itu DIBUANG dan bobot kaki yang
+tersisa di-renormalisasi — sehingga sinyal yang ada tidak di-dilute oleh kaki
+kosong. Contoh: konsensus kosong → pasar 73% + makro 27%.
 
 1. **Kaki konsensus (45%)**: kolom "Kesepakatan" TE vs BI rate sekarang,
    dimodelkan sebagai distribusi normal (σ=20 bps) di grid {-25,0,+25},
@@ -63,13 +69,21 @@ move ∈ {-25 bps (cut), 0 (hold), +25 bps (hike)}
    momentum rupiah 3 bulan (USDIDR), arah US10Y (σ=60 bps).
 
 Semua bobot & parameter di dict `CONFIG` atas file — gampang di-tuning.
+Semua HTTP fetch pakai retry + backoff (`fetch_with_retry`).
 
 ### Validasi (backtest)
-`python backtest.py log`    → catat prediksi RDG terdekat SEBELUM hasil keluar
-`python backtest.py update` → ambil hasil aktual dari TE, evaluasi prediksi vs kenyataan
+```
+python backtest.py log      → catat prediksi RDG terdekat SEBELUM hasil keluar
+python backtest.py snapshot → catat snapshot harian (time series evolusi probabilitas)
+python backtest.py update   → ambil hasil aktual dari TE, evaluasi prediksi vs kenyataan
+python backtest.py report   → ringkasan akurasi: hit rate, Brier score, log-loss
+```
 
 Prinsip: prediksi harus dicatat sebelum hasil keluar (anti hindsight bias).
-Log: `data/predictions_log.json`, hasil: `data/backtest_results.json`.
+Metrik: selain hit/miss, setiap prediksi dinilai dengan **Brier score** dan
+**log-loss** (kalibrasi probabilitas, bukan cuma tebakan arah).
+Log: `data/predictions_log.json`, snapshot: `data/prediction_history.json`,
+hasil: `data/backtest_results.json`.
 
 Backtest live (prediksi penuh 3 kaki, dicatat sebelum hasil keluar):
 - 2026-08-19: prediksi HOLD (41.6%), aktual HOLD ✅ **HIT**

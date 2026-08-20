@@ -89,11 +89,11 @@ def load_all():
         "market": calc.leg_market(phei, te),
         "macro": calc.leg_macro(te, yf),
     }
-    final = calc.combine(legs)
+    final, meta = calc.combine(legs, detail=True)
     bt = calc.backtest(te)
-    return te, phei, yf, calendar, legs, final, bt
+    return te, phei, yf, calendar, legs, final, meta, bt
 
-te, phei, yf, calendar, legs, final, bt = load_all()
+te, phei, yf, calendar, legs, final, meta, bt = load_all()
 
 @st.cache_data(ttl=1800, show_spinner="Mengambil data event inflasi & The Fed...")
 def load_events():
@@ -324,8 +324,16 @@ tab_model, tab_bond, tab_macro, tab_cal, tab_events = st.tabs(
 # ---------- MODEL ----------
 with tab_model:
     w = calc.CONFIG["weights"]
-    st.caption(f"Bobot model: konsensus {w['consensus']:.0%} | "
-               f"pasar obligasi {w['market']:.0%} | makro {w['macro']:.0%}")
+    wu = meta.get("weights_used", w)
+    dropped = meta.get("dropped", [])
+    if dropped:
+        st.warning("⚠️ Data tidak tersedia untuk: "
+                   + ", ".join(LEG_LABELS[k] for k in dropped)
+                   + ". Bobot kaki lain di-renormalisasi.")
+    st.caption(f"Bobot efektif (renormalisasi): "
+               + " | ".join(f"{LEG_LABELS[k]} {wu.get(k, 0):.0%}" for k in legs)
+               + (f"   *(bobot nominal: {w['consensus']:.0%} / {w['market']:.0%} / {w['macro']:.0%})*"
+                  if dropped else ""))
 
     df_legs = pd.DataFrame(
         [{"Kaki": LEG_LABELS[k],
@@ -358,7 +366,9 @@ with tab_model:
     st.markdown('<div class="section-h">Detail sinyal tiap kaki</div>',
                 unsafe_allow_html=True)
     for k, (_p, notes) in legs.items():
-        with st.expander(f"{LEG_LABELS[k]} (bobot {calc.CONFIG['weights'][k]:.0%})"):
+        eff = wu.get(k, 0)
+        status = "" if k not in dropped else " — ⚠️ tidak tersedia, bobot 0%"
+        with st.expander(f"{LEG_LABELS[k]} (bobot efektif {eff:.0%}){status}"):
             for n in notes:
                 st.markdown(f"- {n}")
 

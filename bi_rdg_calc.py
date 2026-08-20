@@ -12,7 +12,7 @@ Model 3 kaki (bobot bisa diubah di CONFIG):
   P_final(move) = w_cons*P_consensus + w_mkt*P_market + w_macro*P_macro
   move in {-25, 0, +25} bps (cut / hold / hike)
 """
-import json, math, re, os
+import json, math, re, os, time
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -42,6 +42,24 @@ UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
 
 MOVES = [-25, 0, 25]  # bps: cut, hold, hike
 
+# ============================== HTTP RETRY ==============================
+def fetch_with_retry(url, retries=3, backoff=2.0, **kw):
+    """requests.get dengan retry + exponential backoff. Raise kalau semua gagal."""
+    kw.setdefault("headers", UA)
+    kw.setdefault("timeout", 40)
+    last = None
+    for i in range(retries):
+        try:
+            r = requests.get(url, **kw)
+            if r.status_code == 200:
+                return r
+            last = Exception(f"HTTP {r.status_code} dari {url}")
+        except Exception as e:
+            last = e
+        if i < retries - 1:
+            time.sleep(backoff * (i + 1))
+    raise last
+
 def idnum(s):
     """Parse angka format Indonesia: '6,5334' -> 6.5334"""
     s = s.strip()
@@ -59,8 +77,7 @@ def pct_of(x):
 # ============================== DATA: TRADING ECONOMICS ==============================
 def fetch_te():
     out = {}
-    r = requests.get("https://id.tradingeconomics.com/indonesia/interest-rate",
-                     headers=UA, timeout=40)
+    r = fetch_with_retry("https://id.tradingeconomics.com/indonesia/interest-rate")
     soup = BeautifulSoup(r.text, "lxml")
 
     # --- kalender keputusan suku bunga ---
@@ -88,8 +105,7 @@ def fetch_te():
 
     # --- inflasi ---
     try:
-        r3 = requests.get("https://id.tradingeconomics.com/indonesia/inflation-cpi",
-                          headers=UA, timeout=40)
+        r3 = fetch_with_retry("https://id.tradingeconomics.com/indonesia/inflation-cpi")
         s3 = BeautifulSoup(r3.text, "lxml")
         mm = s3.find("meta", id="metaDesc")
         if mm:
@@ -103,8 +119,7 @@ def fetch_te():
 
     # --- forecast kuartalan ---
     try:
-        r2 = requests.get("https://id.tradingeconomics.com/indonesia/forecast",
-                          headers=UA, timeout=40)
+        r2 = fetch_with_retry("https://id.tradingeconomics.com/indonesia/forecast")
         soup2 = BeautifulSoup(r2.text, "lxml")
         for t in soup2.find_all("table"):
             ttext = t.get_text("|", strip=True)
@@ -129,7 +144,7 @@ def fetch_te():
 def fetch_phei():
     S = requests.Session(); S.headers.update(UA)
     out = {}
-    r = S.get("https://www.phei.co.id/Data/HPW-dan-Imbal-Hasil", timeout=40)
+    r = fetch_with_retry("https://www.phei.co.id/Data/HPW-dan-Imbal-Hasil")
     soup = BeautifulSoup(r.text, "lxml")
 
     curve_today, curve_yest = {}, {}
@@ -164,7 +179,7 @@ def fetch_phei():
     out["sbn_benchmark"] = bench
 
     # --- indeks ---
-    r2 = S.get("https://www.phei.co.id/Data/Indeks", timeout=40)
+    r2 = fetch_with_retry("https://www.phei.co.id/Data/Indeks")
     soup2 = BeautifulSoup(r2.text, "lxml")
     text2 = soup2.get_text(" ", strip=True)
     dm = re.search(r"([A-Z]\w+ , \d+ \w+ \d{4})", text2)
@@ -211,8 +226,7 @@ def fetch_te_calendar():
     (pengganti Investing.com yang kena Cloudflare)."""
     events = []
     try:
-        r = requests.get("https://tradingeconomics.com/indonesia/calendar",
-                         headers=UA, timeout=40)
+        r = fetch_with_retry("https://tradingeconomics.com/indonesia/calendar")
         soup = BeautifulSoup(r.text, "lxml")
         for t in soup.find_all("table"):
             rows = t.find_all("tr")
@@ -343,11 +357,40 @@ def leg_macro(te, yf):
     P = grid_probs(mu, CONFIG["sigma_macro_bps"])
     return P, notes
 
-def combine(legs):
-    w = CONFIG["weights"]
-    final = {m: sum(w[k]*legs[k][0][m] for k in legs) for m in MOVES}
+def leg_available(P, eps=0.01):
+    """Suatu kaki dianggap 'tersedia' kalau distribusinya TIDAK uniform.
+    Fallback uniform (33/33/33) artinya tidak ada data -> jangan ditimbang."""
+    return any(abs(v - 1/3) > eps for v in P.values())
+
+def combine(legs, weights=None, detail=False):
+    """Gabungkan kaki menjadi probabilitas final.
+
+    Kalau suatu kaki tidak tersedia (uniform fallback), kaki itu DIBUANG dan
+    bobot kaki yang tersisa di-renormalisasi -- supaya sinyal yang ada tidak
+    di-dilute oleh kaki kosong (sebelumnya 45% bobot konsensus yang kosong
+    selalu memipihkan hasil mendekati 33/33/33).
+    """
+    w = dict(weights or CONFIG["weights"])
+    avail = {k: legs[k] for k in legs if leg_available(legs[k][0])}
+    dropped = [k for k in legs if k not in avail]
+
+    if not avail:  # semua kaki kosong -> tidak tahu apa-apa
+        final = {m: 1/3 for m in MOVES}
+        meta = {"weights_used": {k: 0.0 for k in legs}, "dropped": dropped,
+                "note": "Semua kaki tidak tersedia -> uniform"}
+        return (final, meta) if detail else final
+
+    ws = sum(w[k] for k in avail)
+    w_used = {k: w[k] / ws for k in avail}
+    final = {m: sum(w_used[k] * avail[k][0][m] for k in avail) for m in MOVES}
     s = sum(final.values())
-    return {m: v/s for m, v in final.items()}
+    final = {m: v / s for m, v in final.items()}
+    meta = {"weights_used": {k: round(v, 4) for k, v in w_used.items()},
+            "dropped": dropped}
+    if dropped:
+        meta["note"] = ("Kaki tidak tersedia, bobot di-renormalisasi: "
+                        + ", ".join(f"{k} {w_used[k]:.0%}" for k in avail))
+    return (final, meta) if detail else final
 
 def backtest(te):
     """Validasi sederhana: untuk RDG historis yang punya konsensus,
@@ -386,8 +429,11 @@ def main():
         "market": leg_market(phei, te),
         "macro": leg_macro(te, yf),
     }
-    final = combine(legs)
+    final, meta = combine(legs, detail=True)
     bt = backtest(te)
+
+    if meta.get("dropped"):
+        print("!! Kaki tidak tersedia (di-renormalisasi): " + ", ".join(meta["dropped"]))
 
     result = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
@@ -410,6 +456,8 @@ def main():
             for k, (p, n) in legs.items()
         },
         "weights": CONFIG["weights"],
+        "weights_used": meta["weights_used"],
+        "dropped_legs": meta["dropped"],
         "final_probability": {str(m): round(v, 4) for m, v in final.items()},
         "most_likely_move_bps": max(final, key=final.get),
         "backtest_consensus_leg": bt,
